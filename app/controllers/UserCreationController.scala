@@ -2,6 +2,7 @@ package controllers
 
 import javax.inject._
 
+import dao.UserDao
 import model.ValidUsernameRequest
 import play.api.libs.json.Json
 import play.api.mvc._
@@ -11,7 +12,7 @@ import play.api.mvc._
  * application's home page.
  */
 @Singleton
-class UserCreationController @Inject() extends Controller {
+class UserCreationController @Inject() (userDao: UserDao) extends Controller {
 
   /**
    * Return all users present in the datbase. This would form part of Admin functionality
@@ -27,7 +28,7 @@ class UserCreationController @Inject() extends Controller {
       println(s"failed to parse request: $e") // change this to logging
       BadRequest(Json.obj("error" -> "parsing error", "success" -> false))
     }, r => {
-      NotImplemented(Json.obj("success" -> false))
+      Ok(Json.obj("username" -> r.username, "isValid" -> userDao.isValidUsername(r.username)))
     })
   }
   }
