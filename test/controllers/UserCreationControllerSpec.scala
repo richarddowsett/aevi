@@ -15,6 +15,7 @@ import play.api.test.Helpers._
 import play.api.test._
 import org.mockito.ArgumentMatchers._
 
+import scala.concurrent.Future
 import scalaz.\/-
 
 
@@ -31,7 +32,7 @@ class UserCreationControllerSpec extends PlaySpec with OneAppPerTest with Mockit
   "UserCreationController PUT /user" should {
     "add a user with no error" in {
       val inputUser = User("sample","sample@email.com", "Sample", "User", "123456799")
-      when(mock.addUser(ArgumentMatchers.eq(inputUser))).thenReturn(\/-(()))
+      when(mock.addUser(ArgumentMatchers.eq(inputUser))).thenReturn(Future.successful(\/-(())))
       val request = FakeRequest(PUT, "/user").withHeaders("Host" -> "localhost").withBody(Json.obj("user" -> Json.toJson(inputUser), "timestamp" -> Json.toJson(new DateTime())))
       val addUser = route(app, request).get
 
@@ -45,7 +46,7 @@ class UserCreationControllerSpec extends PlaySpec with OneAppPerTest with Mockit
   "UserCreationController GET /" should {
 
     "render the index page from the router" in {
-      when(mock.getAllUsers()).thenReturn(List(User("richarddowsett@email.com", "richarddowsett@email.com", "Richard", "Dowsett", "01234567890")))
+      when(mock.getAllUsers()).thenReturn(Future.successful(List(User("richarddowsett@email.com", "richarddowsett@email.com", "Richard", "Dowsett", "01234567890"))))
       val request = FakeRequest(GET, "/").withHeaders("Host" -> "localhost")
       val home = route(app, request).get
 
@@ -61,7 +62,7 @@ class UserCreationControllerSpec extends PlaySpec with OneAppPerTest with Mockit
   "UserCreationController GET /username" should {
 
     "validate a username" in {
-      when(mock.isValidUsername("richarddowsett")).thenReturn(true)
+      when(mock.isValidUsername("richarddowsett")).thenReturn(Future.successful(true))
       val request = FakeRequest(GET, "/username").withHeaders("Host" -> "localhost").withBody(Json.obj("username" -> "richarddowsett"))
       val validUser = route(app, request).get
 
@@ -74,7 +75,7 @@ class UserCreationControllerSpec extends PlaySpec with OneAppPerTest with Mockit
     }
 
     "validate that a username is not valid" in {
-      when(mock.isValidUsername("invalid")).thenReturn(false)
+      when(mock.isValidUsername("invalid")).thenReturn(Future.successful(false))
       val request = FakeRequest(GET, "/username").withHeaders("Host" -> "localhost").withBody(Json.obj("username" -> "invalid"))
       val validUser = route(app, request).get
 

@@ -34,12 +34,12 @@ class UserCreationControllerIntegrationSpec extends PlaySpec with OneAppPerTest 
   }
 
   "show username as invalid once added" in {
-    val validUserPayload = FakeRequest(GET, "/username").withHeaders("Host" -> "localhost").withBody(Json.obj("username" -> "sample"))
+    val validUserPayload = FakeRequest(GET, "/username").withHeaders("Host" -> "localhost").withBody(Json.obj("username" -> "sampleTest"))
     val validUser = route(app, validUserPayload).get
     status(validUser) mustBe OK
     (contentAsJson(validUser) \ "isValid").as[Boolean] mustBe true
 
-    val inputUser = User("sample", "sample@email.com", "Sample", "User", "123456799")
+    val inputUser = User("sampleTest", "sample@email.com", "Sample", "User", "123456799")
     val request = FakeRequest(PUT, "/user").withHeaders("Host" -> "localhost").withBody(Json.obj("user" -> Json.toJson(inputUser), "timestamp" -> Json.toJson(new DateTime())))
     val addUser = route(app, request).get
     status(addUser) mustBe OK

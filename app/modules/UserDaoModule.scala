@@ -12,6 +12,8 @@ import scala.concurrent.Future
 
 class UserDaoModule(environment: Environment, configuration: Configuration) extends AbstractModule {
   override def configure(): Unit = {
+    val db = Database.forConfig("h2mem")
+    bind(classOf[Database]).toInstance(db)
 
     bind(classOf[UserDao]).to(classOf[UserDaoImpl])
 
