@@ -2,6 +2,8 @@ package controllers
 
 import model.User
 import modules.UserDaoMockModule
+import org.joda.time.DateTime
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.TestData
 import org.scalatest.mock.MockitoSugar
@@ -11,6 +13,10 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import play.api.test._
+import org.mockito.ArgumentMatchers._
+
+import scalaz.\/-
+
 
 class UserCreationControllerSpec extends PlaySpec with OneAppPerTest with MockitoSugar {
   val userDaoMockModule: UserDaoMockModule = new UserDaoMockModule
@@ -21,6 +27,21 @@ class UserCreationControllerSpec extends PlaySpec with OneAppPerTest with Mockit
   }
 
   val mock = userDaoMockModule.userDaoMock
+
+  "UserCreationController PUT /user" should {
+    "add a user with no error" in {
+      val inputUser = User("sample","sample@email.com", "Sample", "User", "123456799")
+      when(mock.addUser(ArgumentMatchers.eq(inputUser))).thenReturn(\/-(()))
+      val request = FakeRequest(PUT, "/user").withHeaders("Host" -> "localhost").withBody(Json.obj("user" -> Json.toJson(inputUser), "timestamp" -> Json.toJson(new DateTime())))
+      val addUser = route(app, request).get
+
+      status(addUser) mustEqual OK
+      contentType(addUser) mustEqual Some("application/json")
+      (contentAsJson(addUser) \ "success").as[Boolean] mustEqual true
+      (contentAsJson(addUser) \ "username").as[String] mustEqual "sample"
+    }
+  }
+
   "UserCreationController GET /" should {
 
     "render the index page from the router" in {
