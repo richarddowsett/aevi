@@ -1,5 +1,6 @@
 package controllers
 
+import model.User
 import modules.UserDaoMockModule
 import org.mockito.Mockito._
 import org.scalatest.TestData
@@ -7,7 +8,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play._
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import play.api.test._
 
@@ -23,19 +24,15 @@ class UserCreationControllerSpec extends PlaySpec with OneAppPerTest with Mockit
   "UserCreationController GET /" should {
 
     "render the index page from the router" in {
+      when(mock.getAllUsers()).thenReturn(List(User("richarddowsett@email.com", "richarddowsett@email.com", "Richard", "Dowsett", "01234567890")))
       val request = FakeRequest(GET, "/").withHeaders("Host" -> "localhost")
       val home = route(app, request).get
 
       status(home) mustBe OK
       contentType(home) mustBe Some("application/json")
-    }
+      val result = contentAsJson(home).validate[List[User]].fold(e => fail("Failed to parse list of users"), identity)
+      result must have size 1
 
-    "render the index page from the application" in {
-      val controller = app.injector.instanceOf[UserCreationController]
-      val home = controller.allUsers().apply(FakeRequest())
-
-      status(home) mustBe OK
-      contentType(home) mustBe Some("application/json")
     }
   }
 

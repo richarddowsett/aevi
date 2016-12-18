@@ -20,7 +20,7 @@ class UserCreationController @Inject() (userDao: UserDao) extends Controller {
    * Returns a list of all Users
    */
   def allUsers = Action { implicit request =>
-    NotImplemented(Json.obj("success" -> false))
+    Ok(Json.toJson(userDao.getAllUsers()))
   }
 
   def validUsername() = Action(BodyParsers.parse.json) { implicit request => {
